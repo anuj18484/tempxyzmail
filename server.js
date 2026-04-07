@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const axios = require('axios'); // Yahan axios add kiya hai
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,10 +15,9 @@ const API_BASE = 'https://www.1secmail.com/api/v1/';
 // Helper: Extract OTP from text
 function extractOTP(text) {
     if (!text) return null;
-    // Regex for 4, 5, 6, or 8 digit codes (standalone)
     const otpRegex = /\b(\d{4}|\d{5}|\d{6}|\d{8})\b/g;
     const matches = text.match(otpRegex);
-    return matches ? matches[0] : null; // Return the first match found
+    return matches ? matches[0] : null;
 }
 
 // Helper: Split email into login and domain
@@ -29,10 +29,10 @@ function splitEmail(email) {
 // 1. Generate Temp Email
 app.get('/api/generate-email', async (req, res) => {
     try {
-        const response = await fetch(`${API_BASE}?action=genRandomMailbox&count=1`);
-        const data = await response.json();
-        res.json({ email: data[0] });
+        const response = await axios.get(`${API_BASE}?action=genRandomMailbox&count=1`);
+        res.json({ email: response.data[0] });
     } catch (error) {
+        console.error("Email Gen Error:", error.message);
         res.status(500).json({ error: 'Failed to generate email' });
     }
 });
@@ -44,22 +44,21 @@ app.get('/api/inbox', async (req, res) => {
 
     const { login, domain } = splitEmail(email);
     try {
-        const response = await fetch(`${API_BASE}?action=getMessages&login=${login}&domain=${domain}`);
-        const data = await response.json();
+        const response = await axios.get(`${API_BASE}?action=getMessages&login=${login}&domain=${domain}`);
         
-        // Format for frontend
-        const messages = data.map(msg => ({
+        const messages = response.data.map(msg => ({
             id: msg.id,
-            sender: msg.from.split('<')[0].trim(), // Clean sender name
+            sender: msg.from.split('<')[0].trim(),
             senderEmail: msg.from,
             subject: msg.subject,
             time: msg.date,
-            otp: extractOTP(msg.subject), // Check subject for OTP
+            otp: extractOTP(msg.subject),
             unread: true
         }));
         
         res.json(messages);
     } catch (error) {
+        console.error("Inbox Error:", error.message);
         res.status(500).json({ error: 'Failed to fetch inbox' });
     }
 });
@@ -71,8 +70,8 @@ app.get('/api/message', async (req, res) => {
 
     const { login, domain } = splitEmail(email);
     try {
-        const response = await fetch(`${API_BASE}?action=readMessage&login=${login}&domain=${domain}&id=${id}`);
-        const msg = await response.json();
+        const response = await axios.get(`${API_BASE}?action=readMessage&login=${login}&domain=${domain}&id=${id}`);
+        const msg = response.data;
 
         const bodyText = msg.textBody || msg.htmlBody || "No content.";
         
@@ -83,22 +82,20 @@ app.get('/api/message', async (req, res) => {
             time: msg.date,
             body: bodyText,
             htmlBody: msg.htmlBody,
-            otp: extractOTP(msg.subject) || extractOTP(bodyText) // Check both for OTP
+            otp: extractOTP(msg.subject) || extractOTP(bodyText)
         };
         
         res.json(messageDetails);
     } catch (error) {
+        console.error("Message Error:", error.message);
         res.status(500).json({ error: 'Failed to fetch message details' });
     }
 });
 
-// 4. Delete/Reset Email (Simulated for 1secmail)
 app.delete('/api/delete-email', (req, res) => {
-    // 1secmail auto-deletes after a while, we just tell frontend it's cleared
     res.json({ success: true, message: 'Mailbox session cleared' });
 });
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });
-                                 
