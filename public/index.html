@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TempMailX | Real Disposable Inbox</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar glass">
+        <div class="logo"><i class="fa-solid fa-bolt"></i> TempMailX</div>
+        <div class="status-badge"><span class="dot pulse"></span> Live Backend</div>
+    </nav>
+
+    <main class="container">
+        <section class="hero">
+            <h1>Advanced Temporary Email</h1>
+            <p>Receiving real emails and automatically extracting OTP verification codes.</p>
+        </section>
+
+        <section class="controls glass">
+            <div class="email-input-group">
+                <input type="text" id="emailDisplay" class="cyber-input email-display" placeholder="Generating..." readonly>
+                <button class="btn btn-icon" id="copyBtn"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="generateNewBtn"><i class="fa-solid fa-plus"></i> New Temp</button>
+                <button class="btn btn-secondary" id="refreshBtn"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                <button class="btn btn-danger" id="deleteBtn"><i class="fa-solid fa-trash"></i> Delete</button>
+            </div>
+        </section>
+
+        <section class="dashboard">
+            <div class="inbox-panel glass">
+                <div class="inbox-header">
+                    <h3>Inbox (<span id="inboxCount">0</span>)</h3>
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="searchInput" placeholder="Search emails...">
+                    </div>
+                </div>
+                <div class="inbox-list" id="inboxList">
+                    </div>
+                <div class="loader-overlay" id="inboxLoader"><div class="spinner"></div></div>
+            </div>
+
+            <div class="email-viewer glass" id="emailViewer">
+                <div class="empty-viewer" id="emptyViewer">
+                    <i class="fa-regular fa-envelope-open"></i>
+                    <p>Select an email to read</p>
+                </div>
+                
+                <div class="viewer-content" id="viewerContent" style="display: none;">
+                    <div class="viewer-header">
+                        <div class="sender-info">
+                            <div class="avatar" id="vAvatar">A</div>
+                            <div>
+                                <h4 id="vSender">Sender</h4>
+                                <span class="v-email" id="vTime">Time</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="viewer-subject"><h2 id="vSubject">Subject</h2></div>
+                    <div class="viewer-body">
+                        <div class="otp-container" id="vOtpContainer" style="display: none;">
+                            <p>Extracted OTP Code:</p>
+                            <div class="otp-code" id="vOtp"></div>
+                        </div>
+                        <div id="vBody" class="body-text"></div>
+                    </div>
+                    <button class="btn-close-mobile" id="closeMobileBtn"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                </div>
+                <div class="loader-overlay" id="viewerLoader"><div class="spinner"></div></div>
+            </div>
+        </section>
+    </main>
+
+    <div id="toastContainer" class="toast-container"></div>
+    <script src="script.js"></script>
+</body>
+</html>
+
